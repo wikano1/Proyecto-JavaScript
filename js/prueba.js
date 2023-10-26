@@ -1,63 +1,87 @@
-let edad;
-let añoActual = 2023;
-let edadCliente;
-let Pago;
-const Impuesto = "1.5%";
+document.getElementById('registrationForm').addEventListener('submit', function(event) {
+  event.preventDefault(); // Evitar envío del formulario
 
+  const nombre = document.getElementById('nombre').value;
+  const apellidos = document.getElementById('apellidos').value;
+  const documento = document.getElementById('documento').value;
+  const direccion = document.getElementById('direccion').value;
+  const telefono = document.getElementById('telefono').value;
 
-const saludar = (nombreComprador) => alert ("hola " + nombreComprador)
-
-do {
-  nombreComprador = prompt("Un gusto en saludarle, por favor ingrese su nombre para continuar").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-} while (!nombreComprador || !isNaN(nombreComprador));
-do {
-    edad = parseInt(prompt("Indíquenos su año de nacimiento para corroborar su identidad"));
-  } while (isNaN(edad) || edad <= 0);
-  edadCliente = añoActual - edad;
-  if (edadCliente >= 18) {
-    saludar( nombreComprador + " Tu edad actual es " + edadCliente + " puedes continuar con la compra ")
-  } else {
-    alert("Necesita de un adulto para continuar");
-  }
-  let opcioneCompra;
-  do {
-    opcioneCompra = parseInt(prompt("Indíquenos su medio de pago:\n1. Al Contado\n2. Tarjeta de Crédito"));
-  } while (isNaN(opcioneCompra) || opcioneCompra < 1 || opcioneCompra > 2);
-  if (opcioneCompra === 1) {
-    alert("Contamos con descuentos exclusivos");
-  } else if (opcioneCompra === 2) {
-    let costoFinal;
-    do {
-      costoFinal = parseFloat(prompt("Indique el costo final de la compra"));
-    } while (isNaN(costoFinal) || costoFinal <= 0);
-    costoFinal += parseFloat(Impuesto);
-    alert("El costo final con impuesto es: " + costoFinal);
-  } else {
-    alert("Indique una opción válida");
-  }
-  let continuarComprando = true;
-  while (continuarComprando) {
-    let costoFinal;
-    do {
-      costoFinal = parseFloat(prompt("Indique el costo final de la compra"));
-    } while (isNaN(costoFinal) || costoFinal <= 0);
-    let descuento = 0;
-    if (costoFinal >= 100 && costoFinal < 500) {
-      descuento = 10;
-    } else if (costoFinal >= 500 && costoFinal < 1000) {
-      descuento = 20;
-    } else if (costoFinal >= 1000) {
-      descuento = 30;
+  const paquete1Options = document.getElementsByName('paquete1');
+  let paquete1SelectedOptions = [];
+  for (let i = 0; i < paquete1Options.length; i++) {
+    if (paquete1Options[i].checked) {
+      paquete1SelectedOptions.push(paquete1Options[i].value);
     }
-    let costoConDescuento = costoFinal - (costoFinal * descuento / 100);
-    alert("El costo final con descuento es: " + costoConDescuento);
-    let opcionContinuar;
-    do {
-        opcionContinuar = prompt("¿Desea continuar comprando? (S/N)").toUpperCase();
-      } while (opcionContinuar !== "S" && opcionContinuar !== "N");
-      if (opcionContinuar !== "S") {
-        continuarComprando = false;
-        alert("Gracias por su compra. ¡Vuelva pronto!");
-      }
-    
+  }
+
+  let costoTotal = 0;
+
+  paquete1SelectedOptions.forEach((option) => {
+    costoTotal += parseFloat(option);
+  });
+
+  const formaPago = document.getElementById('formaPago').value;
+  if (formaPago === 'efectivo') {
+    const descuento = costoTotal * 0.1; // Descuento del 10% si paga en efectivo
+    costoTotal *= 0.9; // Aplicar descuento del 10% si paga en efectivo
+
+    // Mensaje de descuento
+    const mensajeDescuento = '¡Usted recibirá un descuento del 10% por pagar en efectivo!';
+
+    // Agregar el mensaje de descuento al mensaje principal
+    const mensajePrincipal = `¡Gracias por registrarte, ${nombre}! El costo total es de $${costoTotal}. ${mensajeDescuento}`;
+
+    // Mostrar el mensaje en un h2
+    const h2Element = document.createElement('h2');
+    h2Element.textContent = mensajePrincipal;
+
+    const body = document.body;
+    body.appendChild(h2Element);
+  } else {
+    // Mensaje sin descuento
+    const mensajePrincipal = `¡Gracias por registrarte, ${nombre}! El costo total es de $${costoTotal}.`;
+
+    // Mostrar el mensaje en un h2
+    const h2Element = document.createElement('h2');
+    h2Element.textContent = mensajePrincipal;
+
+    const body = document.body;
+    body.appendChild(h2Element);
+  }
+
+  // Aquí puedes enviar los datos del registro a un servidor o realizar otras acciones necesarias
+});
+
+function borrarSeleccion() {
+  const paquete1Options = document.getElementsByName('paquete1');
+
+  for (let i = 0; i < paquete1Options.length; i++) {
+    paquete1Options[i].checked = false;
+  }
+
+  document.getElementById('valorCompra').innerHTML = 'Valor de Compra: $0';
+
+  // Eliminar el mensaje anterior
+  const h2Element = document.querySelector('h2');
+  if (h2Element) {
+    h2Element.remove();
+  }
+
+  localStorage.removeItem('datosCompra');
 }
+
+document.getElementsByName('paquete1').forEach(function(checkbox) {
+  checkbox.addEventListener('change', function() {
+    let valorCompra = 0;
+
+    document.getElementsByName('paquete1').forEach(function(option) {
+      if (option.checked) {
+        valorCompra += parseFloat(option.value);
+      }
+    });
+
+    document.getElementById('valorCompra').innerHTML = `Valor de Compra: $${valorCompra}`;
+  });
+});
+
